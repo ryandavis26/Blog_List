@@ -2,7 +2,9 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
-require('dotenv').config()
+const logger = require('./utils/logger.js')
+const config = require('./utils/config.js')
+
 
 const blogSchema = new mongoose.Schema({
   title: String,
@@ -13,15 +15,14 @@ const blogSchema = new mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema)
 
-const mongoUrl = process.env.MONGODB_URI
+const mongoUrl = config.MONGODB_URI
 
 mongoose.connect(mongoUrl)
   .then(() => {
-    console.log("connected to BlogList in Mongo DB ")
+    logger.info('Connected to the DB')
   })
   .catch((error) => {
-    console.log("couldn't establish connection with Mongo DB")
-    console.log(error.message)
+    logger.error(error)
   })
 
 app.use(cors())
@@ -45,7 +46,7 @@ app.post('/api/blogs', (request, response) => {
     })
 })
 
-const PORT = process.env.PORT || 3003
+const PORT = config.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  logger.info(`Server running on port ${PORT}`)
 })
