@@ -71,7 +71,7 @@ describe('total likes', () => {
   })
 
   test(`Favourite Blog is ${ListofSixBlogs[2].title} by ${ListofSixBlogs[2].author}`, () => {
-    assert.strictEqual(listHelper.favoriteBlog(ListofSixBlogs), ListofSixBlogs[2])
+    assert.deepStrictEqual(listHelper.favoriteBlog(ListofSixBlogs), ListofSixBlogs[2])
   })
 })
 
