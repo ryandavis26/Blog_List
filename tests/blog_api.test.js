@@ -74,19 +74,19 @@ test('Insert a blog into the DB', async () => {
 })
 
 
-test-only('Delete An Existing ID', async () => {
-    const initialBlogs = await helper.blogsInDb()
-    const blogToDelete = initialBlogs[0]
+test('Delete An Existing ID', async () => {
+  const initialBlogs = await helper.blogsInDb()
+  const blogToDelete = initialBlogs[0]
 
-    await api
-        .delete(`/api/blogs/${blogToDelete.id}`)
-        .expect(204)
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
 
-    const blogsAfterDelete = await helper.blogsInDb()
-    const titles = blogsAfterDelete.map(curBody => curBody.title)
+  const blogsAfterDelete = await helper.blogsInDb()
+  const titles = blogsAfterDelete.map(curBody => curBody.title)
 
-    assert(!titles.includes(blogToDelete.title))
-    assert.strictEqual(blogAfterDelete.length, helper.initialBlogs.length - 1)
+  assert(!titles.includes(blogToDelete.title))
+  assert.strictEqual(blogsAfterDelete.length, helper.initialBlogs.length - 1)
 })
 
 after(async () => {
