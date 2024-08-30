@@ -16,6 +16,7 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlogs)
 })
 
+
 //Test using the a regex to see if the Blog List in the test directory returns a json formatted string
 test('blogs are returned as json', async () => {
   await api
@@ -26,7 +27,7 @@ test('blogs are returned as json', async () => {
 
 test('there exists only 6 blogs', async () => {
   const response = await api.get('/api/blogs')
-
+ 
   assert.strictEqual(response.body.length, 6)
 })
 
@@ -51,7 +52,7 @@ test('check for id field existence', async () => {
 })
 
 
-test.only('Insert a blog into the DB', async () => {
+test('Insert a blog into the DB', async () => {
   const newBlog = {
     title: "JS is a weird langauge",
     author: "Ryan Davis",
@@ -66,10 +67,27 @@ test.only('Insert a blog into the DB', async () => {
     .expect('Content-Type', /application\/json/)
 
   const response = await api.get('/api/blogs')
+  const titles = response.body.map(curBody => curBody.title)
 
+  assert(titles.includes("JS is a weird langauge"))
   assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
 })
 
+
+test-only('Delete An Existing ID', async () => {
+    const initialBlogs = await helper.blogsInDb()
+    const blogToDelete = initialBlogs[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const blogsAfterDelete = await helper.blogsInDb()
+    const titles = blogsAfterDelete.map(curBody => curBody.title)
+
+    assert(!titles.includes(blogToDelete.title))
+    assert.strictEqual(blogAfterDelete.length, helper.initialBlogs.length - 1)
+})
 
 after(async () => {
   await mongoose.connection.close()
