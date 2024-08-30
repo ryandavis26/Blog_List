@@ -7,6 +7,7 @@ const api = supertest(app)
 
 const helper = require('./blog_test_helper')
 const Blog = require('../models/blog')
+const blogToUpdate = require('../models/blog')
 
 
 beforeEach(async () => {
@@ -18,6 +19,7 @@ beforeEach(async () => {
 
 
 //Test using the a regex to see if the Blog List in the test directory returns a json formatted string
+//Test Get All
 test('blogs are returned as json', async () => {
   await api
     .get('/api/blogs')
@@ -25,12 +27,14 @@ test('blogs are returned as json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
+//Test get all and check length of documents
 test('there exists only 6 blogs', async () => {
   const response = await api.get('/api/blogs')
  
   assert.strictEqual(response.body.length, 6)
 })
 
+//Test get all and make sure _id is used as the primary key
 test('check for id field existence', async () => {
   const response = await api.get('/api/blogs')
 
@@ -51,7 +55,7 @@ test('check for id field existence', async () => {
   assert(idFieldExists)
 })
 
-
+//Test post with new blog
 test('Insert a blog into the DB', async () => {
   const newBlog = {
     title: "JS is a weird langauge",
@@ -73,7 +77,7 @@ test('Insert a blog into the DB', async () => {
   assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
 })
 
-
+//Test delete of an existing blog
 test('Delete An Existing ID', async () => {
   const initialBlogs = await helper.blogsInDb()
   const blogToDelete = initialBlogs[0]
@@ -87,6 +91,32 @@ test('Delete An Existing ID', async () => {
 
   assert(!titles.includes(blogToDelete.title))
   assert.strictEqual(blogsAfterDelete.length, helper.initialBlogs.length - 1)
+})
+
+//Test put to update title of an existing blog
+test('Update an existing blog\'s fields with new information', async () => {
+  const initialBlogs = await helper.blogsInDb()
+  const blogToUpdate = initialBlogs[0]
+
+  //Update with the new field
+  const blogWithNewFields = {
+      title: "THIS IS A UPDATE TEST NAME",
+      author: blogToUpdate.author,
+      url: blogToUpdate.url,
+      likes: blogToUpdate.likes
+  }
+  
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(blogWithNewFields)
+    .expect(204)
+
+  const blogsAfterUpdate = await helper.blogsInDb()
+  const titles = blogsAfterUpdate.map(curBody => curBody.title)
+
+  
+  
+  assert(titles.includes(blogWithNewFields.title))
 })
 
 after(async () => {
